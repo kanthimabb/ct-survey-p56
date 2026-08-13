@@ -86,15 +86,16 @@ const LIKERT_OPTIONS = [
 ];
 
 const MASCOT_MESSAGES = [
-  "สวัสดีครับเพื่อนๆ! มาเริ่มทำแบบสำรวจสนุกๆ กันเลย!",
-  "กรอกข้อมูลส่วนตัวของน้องๆ ให้ครบถ้วนนะ!",
-  "ด้านที่ 1: การแบ่งงานใหญ่เป็นงานเล็กๆ ลองคิดตามดูนะ!",
-  "ด้านที่ 2: มองหาแบบแผนที่คุ้นเคย ทำได้ดีมากครับ!",
-  "ด้านที่ 3: ดึงเอาแค่ใจความสำคัญออกมา น้องๆ เก่งมาก!",
+  "มาเริ่มทำแบบสำรวจสนุกๆ กันเลย!",
+  "กรอกข้อมูลส่วนตัวของนักเรียนให้ครบถ้วนนะ!",
+  "ด้านที่ 1: การแบ่งงานใหญ่เป็นงานเล็ก ๆ ลองคิดตามดูนะ!",
+  "ด้านที่ 2: มองหาแบบแผนที่คุ้นเคย ทำได้ดีมากเด็ก ๆ!",
+  "ด้านที่ 3: ดึงเอาแค่ใจความสำคัญออกมา เด็ก ๆ เก่งมาก!",
   "ด้านที่ 4: วางแผนการทำงานเป็นขั้นเป็นตอน สู้ๆ อีกนิดเดียว!",
   "ด้านที่ 5: ตรวจสอบและแก้ไขข้อผิดพลาด ส่วนสุดท้ายแล้ว!",
-  "ยินดีด้วยครับ! น้องๆ ทำแบบสำรวจสำเร็จแล้ว ⭐"
+  "ยินดีด้วย! เด็ก ๆ ทำแบบสำรวจสำเร็จแล้ว ⭐"
 ];
+
 
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -271,15 +272,15 @@ function validateStep(step) {
     const experience = document.querySelector('input[name="experience"]:checked');
 
     if (!gender) {
-      showToast("กรุณาเลือกเพศของนักเรียนก่อนครับ", "error");
+      showToast("กรุณาเลือกเพศของนักเรียนก่อน", "error");
       return false;
     }
     if (!grade) {
-      showToast("กรุณาเลือกระดับชั้นของนักเรียนก่อนครับ", "error");
+      showToast("กรุณาเลือกระดับชั้นของนักเรียนก่อน", "error");
       return false;
     }
     if (!experience) {
-      showToast("กรุณาตอบข้อ 3 เคยเรียนโปรแกรมหรือไม่ก่อนครับ", "error");
+      showToast("กรุณาตอบข้อ 3 เคยเรียนโปรแกรมหรือไม่ก่อน", "error");
       return false;
     }
     return true;
@@ -298,7 +299,7 @@ function validateStep(step) {
     }
 
     if (missingQuestion) {
-      showToast(`กรุณาตอบข้อ ${missingQuestion.num} ก่อนไปขั้นตอนต่อไปครับ`, "error");
+      showToast(`กรุณาตอบข้อ ${missingQuestion.num} ก่อนไปขั้นตอนต่อไป`, "error");
       const groupEl = document.getElementById(`group-${missingQuestion.id}`);
       if (groupEl) {
         groupEl.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -455,3 +456,4 @@ function showToast(message, type = "info") {
     toast.remove();
   }, 3500);
 }
+
