@@ -9,6 +9,7 @@
  * --------------------------------------------------------------------------
  */
 const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbynRIu1csqF4HK1-8nSQ3l01UcL4Ue5yfFAm1m455a8qyuwH8uAciQ_Oq7PVI4GGDBTMQ/exec"; // <-- วาง URL จาก Google Apps Script ตรงนี้ เช่น "https://script.google.com/macros/s/AKfy.../exec"
+
 // --- App State ---
 let currentStep = 0;
 let surveyAnswers = {};
@@ -75,6 +76,7 @@ const SURVEY_DOMAINS = [
     ]
   }
 ];
+
 const LIKERT_OPTIONS = [
   { value: 5, emoji: "🤩", text: "เป็นจริงมากที่สุด", scoreText: "5 คะแนน" },
   { value: 4, emoji: "😀", text: "เป็นจริงมาก", scoreText: "4 คะแนน" },
@@ -82,6 +84,7 @@ const LIKERT_OPTIONS = [
   { value: 2, emoji: "🙁", text: "เป็นจริงน้อย", scoreText: "2 คะแนน" },
   { value: 1, emoji: "😅", text: "เป็นจริงน้อยที่สุด", scoreText: "1 คะแนน" }
 ];
+
 const MASCOT_MESSAGES = [
   "สวัสดีครับเพื่อนๆ! มาเริ่มทำแบบสำรวจสนุกๆ กันเลย!",
   "กรอกข้อมูลส่วนตัวของน้องๆ ให้ครบถ้วนนะ!",
@@ -92,17 +95,25 @@ const MASCOT_MESSAGES = [
   "ด้านที่ 5: ตรวจสอบและแก้ไขข้อผิดพลาด ส่วนสุดท้ายแล้ว!",
   "ยินดีด้วยครับ! น้องๆ ทำแบบสำรวจสำเร็จแล้ว ⭐"
 ];
+
+// --- App State ---
+let currentStep = 0;
+let surveyAnswers = {};
+let webhookUrl = localStorage.getItem("ct_webhook_url") || "";
+
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
   renderPart2Questions();
   setupEventListeners();
   loadSavedDraft();
 });
+
 // Render Dynamic Part 2 Rating Cards
 function renderPart2Questions() {
   SURVEY_DOMAINS.forEach(domain => {
     const container = document.getElementById(domain.containerId);
     if (!container) return;
+
     let html = "";
     domain.questions.forEach(q => {
       html += `
@@ -128,15 +139,18 @@ function renderPart2Questions() {
     container.innerHTML = html;
   });
 }
+
 // Global rating change event
 function onRatingSelect(questionId, value) {
   surveyAnswers[questionId] = value;
   saveDraftToLocalStorage();
 }
+
 // Setup App Events
 function setupEventListeners() {
   // Start Button
   document.getElementById("btn-start")?.addEventListener("click", () => goToStep(1));
+
   // Next Buttons
   document.querySelectorAll(".btn-next").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -146,6 +160,7 @@ function setupEventListeners() {
       }
     });
   });
+
   // Prev Buttons
   document.querySelectorAll(".btn-prev").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -153,8 +168,10 @@ function setupEventListeners() {
       goToStep(target);
     });
   });
+
   // Submit Button
   document.getElementById("btn-submit")?.addEventListener("click", submitSurvey);
+
   // Restart Button
   document.getElementById("btn-restart")?.addEventListener("click", () => {
     if (confirm("ต้องการเริ่มทำแบบสำรวจใหม่หรือไม่? (ข้อมูลปัจจุบันจะถูกล้าง)")) {
@@ -165,8 +182,10 @@ function setupEventListeners() {
       goToStep(0);
     }
   });
+
   // Download CSV
   document.getElementById("btn-download-csv")?.addEventListener("click", downloadCSV);
+
   // "Other App" Checkbox toggle
   const chkOther = document.getElementById("chk-other-app");
   const txtOther = document.getElementById("txt-other-app");
@@ -176,12 +195,14 @@ function setupEventListeners() {
       if (chkOther.checked) txtOther.focus();
     });
   }
+
   // Modal Settings Toggle
   const btnConfig = document.getElementById("btn-config");
   const modalConfig = document.getElementById("modal-config");
   const btnCloseModal = document.getElementById("btn-close-modal");
   const btnSaveConfig = document.getElementById("btn-save-config");
   const inputWebhookUrl = document.getElementById("input-webhook-url");
+
   if (btnConfig && modalConfig) {
     btnConfig.addEventListener("click", () => {
       inputWebhookUrl.value = webhookUrl;
@@ -196,9 +217,21 @@ function setupEventListeners() {
     });
   }
 }
+
+// Global Functions for Inline HTML Handlers
+window.goToStep = goToStep;
+window.handleNextStep = function(currentStepIndex) {
+  if (validateStep(currentStepIndex)) {
+    goToStep(currentStepIndex + 1);
+  }
+};
+window.submitSurvey = submitSurvey;
+window.downloadCSV = downloadCSV;
+
 // Step Navigation
 function goToStep(stepIndex) {
   currentStep = stepIndex;
+
   // Toggle Visibility
   document.querySelectorAll(".survey-step").forEach((step, idx) => {
     if (idx === stepIndex) {
@@ -207,6 +240,7 @@ function goToStep(stepIndex) {
       step.classList.add("hidden");
     }
   });
+
   // Progress Bar Visibility
   const progressWrapper = document.getElementById("progress-wrapper");
   if (stepIndex >= 1 && stepIndex <= 6) {
@@ -215,27 +249,32 @@ function goToStep(stepIndex) {
   } else {
     progressWrapper.classList.add("hidden");
   }
+
   // Scroll to top
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 // Update Progress Bar & Mascot Text
 function updateProgressBar(step) {
   const percent = Math.round((step / 6) * 100);
   document.getElementById("step-label").innerText = `ขั้นตอนที่ ${step} จาก 6`;
   document.getElementById("progress-percent").innerText = `${percent}%`;
   document.getElementById("progress-bar-fill").style.width = `${percent}%`;
+
   // Mascot Tip
   const mascotText = document.getElementById("mascot-text");
   if (mascotText && MASCOT_MESSAGES[step]) {
     mascotText.innerText = MASCOT_MESSAGES[step];
   }
 }
+
 // Validation Step by Step
 function validateStep(step) {
   if (step === 1) {
     const gender = document.querySelector('input[name="gender"]:checked');
     const grade = document.querySelector('input[name="grade"]:checked');
     const experience = document.querySelector('input[name="experience"]:checked');
+
     if (!gender) {
       showToast("กรุณาเลือกเพศของนักเรียนก่อนครับ", "error");
       return false;
@@ -250,9 +289,11 @@ function validateStep(step) {
     }
     return true;
   }
+
   if (step >= 2 && step <= 6) {
     const domain = SURVEY_DOMAINS[step - 2];
     let missingQuestion = null;
+
     for (let q of domain.questions) {
       const selected = document.querySelector(`input[name="${q.id}"]:checked`);
       if (!selected) {
@@ -260,6 +301,7 @@ function validateStep(step) {
         break;
       }
     }
+
     if (missingQuestion) {
       showToast(`กรุณาตอบข้อ ${missingQuestion.num} ก่อนไปขั้นตอนต่อไปครับ`, "error");
       const groupEl = document.getElementById(`group-${missingQuestion.id}`);
@@ -270,11 +312,14 @@ function validateStep(step) {
       return false;
     }
   }
+
   return true;
 }
+
 // Submit Full Survey
 async function submitSurvey() {
   if (!validateStep(6)) return;
+
   // Gather Part 1
   const gender = document.querySelector('input[name="gender"]:checked')?.value || "";
   const grade = document.querySelector('input[name="grade"]:checked')?.value || "";
@@ -289,6 +334,7 @@ async function submitSurvey() {
     selectedApps = selectedApps.filter(a => a !== "อื่น ๆ");
     selectedApps.push(`อื่น ๆ (${txtOther.value.trim()})`);
   }
+
   const payload = {
     timestamp: new Date().toISOString(),
     formattedDate: new Date().toLocaleString("th-TH"),
@@ -298,10 +344,13 @@ async function submitSurvey() {
     apps: selectedApps.join(", "),
     answers: { ...surveyAnswers }
   };
+
   // Save Complete Payload
   localStorage.setItem("ct_survey_completed_payload", JSON.stringify(payload));
+
   // Go to completion step
   goToStep(7);
+
   // Confetti Animation
   if (typeof confetti === "function") {
     confetti({
@@ -310,6 +359,7 @@ async function submitSurvey() {
       origin: { y: 0.6 }
     });
   }
+
   // Post to Google Sheets Webhook if configured
   const sheetsStatus = document.getElementById("sheets-status");
   if (webhookUrl) {
@@ -332,6 +382,7 @@ async function submitSurvey() {
     sheetsStatus.innerHTML = "💡 บันทึกในเครื่องเรียบร้อย (สามารถตั้งค่า Webhook เพื่อส่งเข้า Google Sheets ได้ในปุ่มตั้งค่า)";
   }
 }
+
 // Download CSV Data File
 function downloadCSV() {
   const payloadRaw = localStorage.getItem("ct_survey_completed_payload");
@@ -339,12 +390,15 @@ function downloadCSV() {
     showToast("ไม่พบข้อมูลแบบสำรวจ", "error");
     return;
   }
+
   const payload = JSON.parse(payloadRaw);
+
   // Headers
   let headers = ["Timestamp", "เวลาตอบ", "เพศ", "ระดับชั้น", "เคยเรียนโปรแกรม", "แอปพลิเคชันที่เคยใช้"];
   for (let i = 1; i <= 25; i++) {
     headers.push(`ข้อ_${i}`);
   }
+
   // Row Data
   let row = [
     `"${payload.timestamp}"`,
@@ -354,9 +408,11 @@ function downloadCSV() {
     `"${payload.experience}"`,
     `"${payload.apps.replace(/"/g, '""')}"`
   ];
+
   for (let i = 1; i <= 25; i++) {
     row.push(payload.answers[`q${i}`] || "");
   }
+
   const csvContent = "\uFEFF" + headers.join(",") + "\n" + row.join(",");
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -367,10 +423,12 @@ function downloadCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
 // Save LocalStorage Draft
 function saveDraftToLocalStorage() {
   localStorage.setItem("ct_survey_draft", JSON.stringify(surveyAnswers));
 }
+
 // Load LocalStorage Draft
 function loadSavedDraft() {
   const draftRaw = localStorage.getItem("ct_survey_draft");
@@ -387,14 +445,17 @@ function loadSavedDraft() {
     }
   }
 }
+
 // Toast Helper
 function showToast(message, type = "info") {
   const container = document.getElementById("toast-container");
   if (!container) return;
+
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
   toast.innerText = message;
   container.appendChild(toast);
+
   setTimeout(() => {
     toast.remove();
   }, 3500);
