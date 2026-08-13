@@ -1,9 +1,19 @@
 /**
  * CT Survey Kids - Application Logic
  * Computational Thinking Survey for Elementary Students (Grades 5-6)
+ * 
+ * --------------------------------------------------------------------------
+ * 📌 สำหรับผู้วิจัย: นำ Web App URL จาก Google Apps Script มาวางในอัญประกาศ ("...")
+ * ด้านล่างนี้เพียงครั้งเดียว เมื่ออัปโหลดขึ้นเว็บแล้ว ทุกคนที่ตอบแบบสำรวจจากทุกเครื่อง
+ * ข้อมูลจะเด้งเข้า Google Sheets ของคุณทันทีโดยไม่ต้องตั้งค่าใหม่ในทุกๆ เครื่อง!
+ * --------------------------------------------------------------------------
  */
+const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbynRIu1csqF4HK1-8nSQ3l01UcL4Ue5yfFAm1m455a8qyuwH8uAciQ_Oq7PVI4GGDBTMQ/exec"; // <-- วาง URL จาก Google Apps Script ตรงนี้ เช่น "https://script.google.com/macros/s/AKfy.../exec"
 
-// --- Survey Data Definition ---
+// --- App State ---
+let currentStep = 0;
+let surveyAnswers = {};
+let webhookUrl = localStorage.getItem("ct_webhook_url") || DEFAULT_WEBHOOK_URL;
 const SURVEY_DOMAINS = [
   {
     id: 1,
@@ -96,7 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderPart2Questions();
   setupEventListeners();
   loadSavedDraft();
-  updateUI();
 });
 
 // Render Dynamic Part 2 Rating Cards
@@ -208,6 +217,16 @@ function setupEventListeners() {
     });
   }
 }
+
+// Global Functions for Inline HTML Handlers
+window.goToStep = goToStep;
+window.handleNextStep = function(currentStepIndex) {
+  if (validateStep(currentStepIndex)) {
+    goToStep(currentStepIndex + 1);
+  }
+};
+window.submitSurvey = submitSurvey;
+window.downloadCSV = downloadCSV;
 
 // Step Navigation
 function goToStep(stepIndex) {
