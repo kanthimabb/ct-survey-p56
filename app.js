@@ -1,19 +1,14 @@
 /**
  * CT Survey Kids - Application Logic
  * Computational Thinking Survey for Elementary Students (Grades 5-6)
- * 
- * --------------------------------------------------------------------------
- * 📌 สำหรับผู้วิจัย: นำ Web App URL จาก Google Apps Script มาวางในอัญประกาศ ("...")
- * ด้านล่างนี้เพียงครั้งเดียว เมื่ออัปโหลดขึ้นเว็บแล้ว ทุกคนที่ตอบแบบสำรวจจากทุกเครื่อง
- * ข้อมูลจะเด้งเข้า Google Sheets ของคุณทันทีโดยไม่ต้องตั้งค่าใหม่ในทุกๆ เครื่อง!
- * --------------------------------------------------------------------------
  */
-const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbynRIu1csqF4HK1-8nSQ3l01UcL4Ue5yfFAm1m455a8qyuwH8uAciQ_Oq7PVI4GGDBTMQ/exec"; // <-- วาง URL จาก Google Apps Script ตรงนี้ เช่น "https://script.google.com/macros/s/AKfy.../exec"
+const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbynRIu1csqF4HK1-8nSQ3l01UcL4Ue5yfFAm1m455a8qyuwH8uAciQ_Oq7PVI4GGDBTMQ/exec";
 
 // --- App State ---
 let currentStep = 0;
 let surveyAnswers = {};
 let webhookUrl = localStorage.getItem("ct_webhook_url") || DEFAULT_WEBHOOK_URL;
+
 const SURVEY_DOMAINS = [
   {
     id: 1,
@@ -96,7 +91,6 @@ const MASCOT_MESSAGES = [
   "ยินดีด้วย! เด็ก ๆ ทำแบบสำรวจสำเร็จแล้ว ⭐"
 ];
 
-
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
   renderPart2Questions();
@@ -147,28 +141,7 @@ function setupEventListeners() {
   // Start Button
   document.getElementById("btn-start")?.addEventListener("click", () => goToStep(1));
 
-  // Next Buttons
-  document.querySelectorAll(".btn-next").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const current = parseInt(e.currentTarget.getAttribute("data-current"));
-      if (validateStep(current)) {
-        goToStep(current + 1);
-      }
-    });
-  });
-
-  // Prev Buttons
-  document.querySelectorAll(".btn-prev").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const target = parseInt(e.currentTarget.getAttribute("data-target"));
-      goToStep(target);
-    });
-  });
-
-  // Submit Button
-  document.getElementById("btn-submit")?.addEventListener("click", submitSurvey);
-
-  // Restart Button
+   // Restart Button
   document.getElementById("btn-restart")?.addEventListener("click", () => {
     if (confirm("ต้องการเริ่มทำแบบสำรวจใหม่หรือไม่? (ข้อมูลปัจจุบันจะถูกล้าง)")) {
       localStorage.removeItem("ct_survey_draft");
@@ -224,26 +197,33 @@ window.handleNextStep = function(currentStepIndex) {
 window.submitSurvey = submitSurvey;
 window.downloadCSV = downloadCSV;
 
-// Step Navigation
+// Step Navigation (ใช้ ID เจาะจงเพื่อแก้ปัญหาหน้าจอว่างเปล่า)
 function goToStep(stepIndex) {
+  const targetStep = document.getElementById(`step-${stepIndex}`);
+  if (!targetStep) {
+    console.error(`ไม่พบหน้า step-${stepIndex}`);
+    return;
+  }
+
   currentStep = stepIndex;
 
-  // Toggle Visibility
-  document.querySelectorAll(".survey-step").forEach((step, idx) => {
-    if (idx === stepIndex) {
-      step.classList.remove("hidden");
-    } else {
-      step.classList.add("hidden");
-    }
+  // ซ่อนทุกหน้าที่มีคลาส survey-step
+  document.querySelectorAll(".survey-step").forEach(step => {
+    step.classList.add("hidden");
   });
+
+  // แสดงเฉพาะหน้าเป้าหมาย
+  targetStep.classList.remove("hidden");
 
   // Progress Bar Visibility
   const progressWrapper = document.getElementById("progress-wrapper");
-  if (stepIndex >= 1 && stepIndex <= 6) {
-    progressWrapper.classList.remove("hidden");
-    updateProgressBar(stepIndex);
-  } else {
-    progressWrapper.classList.add("hidden");
+  if (progressWrapper) {
+    if (stepIndex >= 1 && stepIndex <= 6) {
+      progressWrapper.classList.remove("hidden");
+      updateProgressBar(stepIndex);
+    } else {
+      progressWrapper.classList.add("hidden");
+    }
   }
 
   // Scroll to top
@@ -253,9 +233,13 @@ function goToStep(stepIndex) {
 // Update Progress Bar & Mascot Text
 function updateProgressBar(step) {
   const percent = Math.round((step / 6) * 100);
-  document.getElementById("step-label").innerText = `ขั้นตอนที่ ${step} จาก 6`;
-  document.getElementById("progress-percent").innerText = `${percent}%`;
-  document.getElementById("progress-bar-fill").style.width = `${percent}%`;
+  const stepLabel = document.getElementById("step-label");
+  const progressPercent = document.getElementById("progress-percent");
+  const progressBarFill = document.getElementById("progress-bar-fill");
+  
+  if (stepLabel) stepLabel.innerText = `ขั้นตอนที่ ${step} จาก 6`;
+  if (progressPercent) progressPercent.innerText = `${percent}%`;
+  if (progressBarFill) progressBarFill.style.width = `${percent}%`;
 
   // Mascot Tip
   const mascotText = document.getElementById("mascot-text");
@@ -272,15 +256,15 @@ function validateStep(step) {
     const experience = document.querySelector('input[name="experience"]:checked');
 
     if (!gender) {
-      showToast("กรุณาเลือกเพศของนักเรียนก่อน", "error");
+      showToast("กรุณาเลือกเพศของนักเรียนก่อนนะ", "error");
       return false;
     }
     if (!grade) {
-      showToast("กรุณาเลือกระดับชั้นของนักเรียนก่อน", "error");
+      showToast("กรุณาเลือกระดับชั้นของนักเรียนก่อนนะ", "error");
       return false;
     }
     if (!experience) {
-      showToast("กรุณาตอบข้อ 3 เคยเรียนโปรแกรมหรือไม่ก่อน", "error");
+      showToast("กรุณาตอบข้อ 3 เคยเรียนโปรแกรมหรือไม่ก่อนนะ", "error");
       return false;
     }
     return true;
@@ -303,7 +287,6 @@ function validateStep(step) {
       const groupEl = document.getElementById(`group-${missingQuestion.id}`);
       if (groupEl) {
         groupEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        groupEl.style.animation = "pulseGlow 1s";
       }
       return false;
     }
@@ -359,7 +342,7 @@ async function submitSurvey() {
   // Post to Google Sheets Webhook if configured
   const sheetsStatus = document.getElementById("sheets-status");
   if (webhookUrl) {
-    sheetsStatus.innerHTML = "⏳ กำลังส่งข้อมูลไปยัง Google Sheets...";
+    if (sheetsStatus) sheetsStatus.innerHTML = "⏳ กำลังส่งข้อมูลไปยัง Google Sheets...";
     try {
       await fetch(webhookUrl, {
         method: "POST",
@@ -367,15 +350,19 @@ async function submitSurvey() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      sheetsStatus.className = "sheets-status-indicator text-success";
-      sheetsStatus.innerHTML = "✅ บันทึกข้อมูลลง Google Sheets เรียบร้อยแล้ว!";
+      if (sheetsStatus) {
+        sheetsStatus.className = "sheets-status-indicator text-success";
+        sheetsStatus.innerHTML = "✅ บันทึกข้อมูลลง Google Sheets เรียบร้อยแล้ว!";
+      }
     } catch (err) {
       console.error(err);
-      sheetsStatus.className = "sheets-status-indicator text-error";
-      sheetsStatus.innerHTML = "⚠️ ไม่สามารถส่งลง Google Sheets ได้ (สามารถดาวน์โหลดไฟล์ CSV แทนได้)";
+      if (sheetsStatus) {
+        sheetsStatus.className = "sheets-status-indicator text-error";
+        sheetsStatus.innerHTML = "⚠️ ไม่สามารถส่งลง Google Sheets ได้ (สามารถดาวน์โหลดไฟล์ CSV แทนได้)";
+      }
     }
   } else {
-    sheetsStatus.innerHTML = "💡 บันทึกในเครื่องเรียบร้อย (สามารถตั้งค่า Webhook เพื่อส่งเข้า Google Sheets ได้ในปุ่มตั้งค่า)";
+    if (sheetsStatus) sheetsStatus.innerHTML = "💡 บันทึกในเครื่องเรียบร้อย (สามารถตั้งค่า Webhook เพื่อส่งเข้า Google Sheets ได้ในปุ่มตั้งค่า)";
   }
 }
 
