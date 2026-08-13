@@ -8,7 +8,7 @@
  * ข้อมูลจะเด้งเข้า Google Sheets ของคุณทันทีโดยไม่ต้องตั้งค่าใหม่ในทุกๆ เครื่อง!
  * --------------------------------------------------------------------------
  */
-const DEFAULT_WEBHOOK_URL = ""; // <-- วาง URL จาก Google Apps Script ตรงนี้ เช่น "https://script.google.com/macros/s/AKfy.../exec"
+const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbynRIu1csqF4HK1-8nSQ3l01UcL4Ue5yfFAm1m455a8qyuwH8uAciQ_Oq7PVI4GGDBTMQ/exec"; // <-- วาง URL จาก Google Apps Script ตรงนี้ เช่น "https://script.google.com/macros/s/AKfy.../exec"
 // --- App State ---
 let currentStep = 0;
 let surveyAnswers = {};
