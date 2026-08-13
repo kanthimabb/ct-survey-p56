@@ -96,11 +96,6 @@ const MASCOT_MESSAGES = [
   "ยินดีด้วยครับ! น้องๆ ทำแบบสำรวจสำเร็จแล้ว ⭐"
 ];
 
-// --- App State ---
-let currentStep = 0;
-let surveyAnswers = {};
-let webhookUrl = localStorage.getItem("ct_webhook_url") || "";
-
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
   renderPart2Questions();
