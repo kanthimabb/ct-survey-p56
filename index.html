@@ -90,7 +90,7 @@
       </div>
 
       <div class="action-footer text-center">
-        <button id="btn-start" class="btn btn-primary btn-large glow-effect">
+        <button id="btn-start" onclick="goToStep(1)" class="btn btn-primary btn-large glow-effect">
           🚀 เริ่มทำแบบสำรวจกันเลย!
         </button>
       </div>
@@ -100,7 +100,7 @@
     <section id="step-1" class="card survey-step hidden">
       <div class="step-header">
         <h2>ตอนที่ 1 ข้อมูลทั่วไปของผู้ตอบแบบสำรวจ</h2>
-        <p>กรุณากรอกข้อมูลของนักเรียนตามความเป็นจริงนะครับ</p>
+        <p>กรุณากรอกข้อมูลของนักเรียนตามความเป็นจริงนะ</p>
       </div>
 
       <form id="form-part1" onsubmit="return false;">
@@ -250,8 +250,8 @@
       </form>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="0">⬅️ ย้อนกลับ</button>
-        <button type="button" class="btn btn-primary btn-next" data-current="1">ถัดไป ➡️</button>
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(0)">⬅️ ย้อนกลับ</button>
+        <button type="button" class="btn btn-primary btn-next" onclick="handleNextStep(1)">ถัดไป ➡️</button>
       </div>
     </section>
 
@@ -268,8 +268,8 @@
       </div>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="1">⬅️ ย้อนกลับ</button>
-        <button type="button" class="btn btn-primary btn-next" data-current="2">ถัดไป ➡️</button>
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(1)">⬅️ ย้อนกลับ</button>
+        <button type="button" class="btn btn-primary btn-next" onclick="handleNextStep(2)">ถัดไป ➡️</button>
       </div>
     </section>
 
@@ -286,8 +286,8 @@
       </div>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="2">⬅️ ย้อนกลับ</button>
-        <button type="button" class="btn btn-primary btn-next" data-current="3">ถัดไป ➡️</button>
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(2)">⬅️ ย้อนกลับ</button>
+        <button type="button" class="btn btn-primary btn-next" onclick="handleNextStep(3)">ถัดไป ➡️</button>
       </div>
     </section>
 
@@ -304,8 +304,8 @@
       </div>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="3">⬅️ ย้อนกลับ</button>
-        <button type="button" class="btn btn-primary btn-next" data-current="4">ถัดไป ➡️</button>
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(3)">⬅️ ย้อนกลับ</button>
+        <button type="button" class="btn btn-primary btn-next" onclick="handleNextStep(4)">ถัดไป ➡️</button>
       </div>
     </section>
 
@@ -322,8 +322,8 @@
       </div>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="4">⬅️ ย้อนกลับ</button>
-        <button type="button" class="btn btn-primary btn-next" data-current="5">ถัดไป ➡️</button>
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(4)">⬅️ ย้อนกลับ</button>
+        <button type="button" class="btn btn-primary btn-next" onclick="handleNextStep(5)">ถัดไป ➡️</button>
       </div>
     </section>
 
@@ -340,8 +340,8 @@
       </div>
 
       <div class="action-footer flex-between">
-        <button type="button" class="btn btn-secondary btn-prev" data-target="5">⬅️ ย้อนกลับ</button>
-        <button type="button" id="btn-submit" class="btn btn-success btn-large glow-effect">
+        <button type="button" class="btn btn-secondary btn-prev" onclick="goToStep(5)">⬅️ ย้อนกลับ</button>
+        <button type="button" id="btn-submit" onclick="submitSurvey()" class="btn btn-success btn-large glow-effect">
           🎉 ส่งแบบสำรวจเรียบร้อย!
         </button>
       </div>
@@ -350,7 +350,7 @@
     <!-- STEP 7: Completion Screen -->
     <section id="step-7" class="card survey-step hidden text-center">
       <div class="completion-icon">🏆</div>
-      <h2 class="completion-title">ขอบคุณที่ให้ข้อมูลอย่างดีเยี่ยมเลยนะเด็ก ๆ! 🎉</h2>
+      <h2 class="completion-title">ยินดีด้วยนะเด็ก ๆ ตอบแบบสำรวจครบถ้วนแล้ว🎉</h2>
       <p class="completion-desc">
         ข้อมูลแบบสำรวจของนักเรียนได้รับการบันทึกเรียบร้อยแล้ว<br>
         ความเห็นของนักเรียนมีคุณค่าและมีประโยชน์มากในการพัฒนาการจัดการเรียนรู้
